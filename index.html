@@ -926,16 +926,16 @@
       color: var(--paper);
       letter-spacing: 0.05em;
     }
-    .match-player .player-x {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--ash);
-      letter-spacing: 0.1em;
-      display: block;
+    .match-player a, .result-player-name a, .fighter-name a {
+      color: inherit;
       text-decoration: none;
-      transition: color 0.2s ease;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      transition: border-color 0.2s ease, color 0.2s ease;
     }
-    .match-player .player-x:hover { color: var(--gold); }
+    .match-player a:hover, .result-player-name a:hover, .fighter-name a:hover {
+      color: var(--gold-bright);
+      border-bottom-color: var(--gold);
+    }
     .match-player-left { text-align: right; }
     .match-player-right { text-align: left; }
 
@@ -1277,7 +1277,7 @@
       </div>
       <div class="detail-item">
         <p class="detail-label">Duration</p>
-        <p class="detail-value">3<span class="unit">時間</span></p>
+        <p class="detail-value">3<span class="unit">HOURS</span></p>
       </div>
       <div class="detail-item">
         <p class="detail-label">Style</p>
@@ -1549,13 +1549,9 @@
       return m ? m[1] : null;
     }
 
-    function xHandle(xUrl) {
-      return xUrl ? `@${xUrl.split('/').pop()}` : '';
-    }
-
-    function xLink(xUrl, cls = '') {
-      if (!xUrl) return '';
-      return `<a class="${cls}" href="${xUrl}" target="_blank" rel="noopener">${xHandle(xUrl)}</a>`;
+    function nameLink(name, xUrl) {
+      if (!xUrl) return name || '——';
+      return `<a href="${xUrl}" target="_blank" rel="noopener">${name || '——'}</a>`;
     }
 
     function renderThumbnail(m) {
@@ -1593,16 +1589,10 @@
         // Populate VS section with the first non-completed match
         const next = matches.find(m => m.status !== 'completed');
         if (next) {
-          document.getElementById('next-p1-name').textContent = next.player1.name;
-          const p1xEl = document.getElementById('next-p1-team');
-          p1xEl.innerHTML = next.player1.x
-            ? `<a href="${next.player1.x}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.75rem;">${xHandle(next.player1.x)}</a>`
-            : '';
-          document.getElementById('next-p2-name').textContent = next.player2.name;
-          const p2xEl = document.getElementById('next-p2-team');
-          p2xEl.innerHTML = next.player2.x
-            ? `<a href="${next.player2.x}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.75rem;">${xHandle(next.player2.x)}</a>`
-            : '';
+          document.getElementById('next-p1-name').innerHTML = nameLink(next.player1.name, next.player1.x);
+          document.getElementById('next-p1-team').textContent = '';
+          document.getElementById('next-p2-name').innerHTML = nameLink(next.player2.name, next.player2.x);
+          document.getElementById('next-p2-team').textContent = '';
           document.getElementById('next-match-meta').innerHTML = `
             <div class="timer-display">${next.date ? formatDate(next.date) : '——'}</div>
             <div style="margin-top:0.3rem;">${next.time || ''}</div>
@@ -1617,13 +1607,11 @@
               <span class="time-sub">${m.time || ''}</span>
             </div>
             <div class="match-player match-player-left">
-              ${xLink(m.player1.x, 'player-x')}
-              ${m.player1.name}
+              ${nameLink(m.player1.name, m.player1.x)}
             </div>
             <div class="match-vs">VS</div>
             <div class="match-player match-player-right">
-              ${xLink(m.player2.x, 'player-x')}
-              ${m.player2.name}
+              ${nameLink(m.player2.name, m.player2.x)}
             </div>
             <div class="match-status-badge">${STATUS_LABEL[m.status] || m.status}</div>
             ${m.note ? `<div class="match-note-row">${m.note}</div>` : ''}
@@ -1672,14 +1660,12 @@
             <div class="result-date">${match.date ? formatDate(match.date) : '——'}</div>
             <div class="result-matchup">
               <div class="result-player result-player-left ${p1win ? 'winner' : 'loser'}">
-                ${p1.x ? `<a class="result-player-team" href="${p1.x}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ash);">${xHandle(p1.x)}</a>` : ''}
-                <div class="result-player-name">${p1.name || '——'}</div>
+                <div class="result-player-name">${nameLink(p1.name, p1.x)}</div>
                 <div class="result-score">${p1score.toLocaleString()}</div>
               </div>
               <div class="result-sep">—</div>
               <div class="result-player result-player-right ${!p1win ? 'winner' : 'loser'}">
-                ${p2.x ? `<a class="result-player-team" href="${p2.x}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ash);">${xHandle(p2.x)}</a>` : ''}
-                <div class="result-player-name">${p2.name || '——'}</div>
+                <div class="result-player-name">${nameLink(p2.name, p2.x)}</div>
                 <div class="result-score">${p2score.toLocaleString()}</div>
               </div>
             </div>
