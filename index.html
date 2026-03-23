@@ -843,6 +843,307 @@
       50% { opacity: 0.2; }
     }
 
+    /* ===== SCHEDULE SECTION ===== */
+    .section-schedule {
+      position: relative;
+      padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem);
+      z-index: 10;
+    }
+
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .match-row {
+      display: grid;
+      grid-template-columns: 100px 1fr auto 1fr 90px;
+      align-items: center;
+      gap: clamp(0.5rem, 2vw, 1.5rem);
+      padding: clamp(1rem, 2vw, 1.4rem) clamp(1rem, 3vw, 2rem);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(200,16,46,0.1);
+      border-left: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .match-row:hover { background: rgba(200,16,46,0.04); }
+    .match-row.status-upcoming { border-left-color: var(--gold); }
+    .match-row.status-live {
+      border-left-color: var(--neon-red);
+      background: rgba(255,26,62,0.04);
+      animation: livePulse 2s ease-in-out infinite;
+    }
+    .match-row.status-completed { border-left-color: rgba(154,138,122,0.3); opacity: 0.65; }
+
+    @keyframes livePulse {
+      0%, 100% { box-shadow: none; }
+      50% { box-shadow: 0 0 20px rgba(255,26,62,0.15); }
+    }
+
+    .match-date { flex-shrink: 0; }
+    .match-date .date-main {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      color: var(--paper);
+      display: block;
+    }
+    .match-date .time-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--gold);
+      display: block;
+      letter-spacing: 0.1em;
+    }
+    .match-date .venue-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--ash);
+      display: block;
+      letter-spacing: 0.1em;
+    }
+
+    .match-player {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(0.95rem, 2.5vw, 1.3rem);
+      color: var(--paper);
+      letter-spacing: 0.05em;
+    }
+    .match-player .player-team {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--ash);
+      letter-spacing: 0.2em;
+      display: block;
+    }
+    .match-player-left { text-align: right; }
+    .match-player-right { text-align: left; }
+
+    .match-vs {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+      color: var(--neon-red);
+      text-align: center;
+      flex-shrink: 0;
+      text-shadow: 0 0 10px rgba(255,26,62,0.5);
+    }
+
+    .match-status-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.25em;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid;
+      text-align: center;
+    }
+    .status-upcoming .match-status-badge { color: var(--gold); border-color: var(--gold); }
+    .status-live .match-status-badge { color: var(--neon-red); border-color: var(--neon-red); }
+    .status-completed .match-status-badge { color: var(--ash); border-color: var(--ash); }
+
+    .match-note-row {
+      grid-column: 1 / -1;
+      font-size: 0.72rem;
+      color: var(--ash);
+      font-style: italic;
+      padding-top: 0.4rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .schedule-empty, .results-empty {
+      text-align: center;
+      padding: 3rem;
+      color: var(--ash);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      border: 1px dashed rgba(200,16,46,0.2);
+    }
+
+    /* ===== RESULTS SECTION ===== */
+    .section-results {
+      position: relative;
+      padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem);
+      z-index: 10;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+      gap: 2px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .result-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(201,168,76,0.1);
+      padding: clamp(1.5rem, 3vw, 2rem);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+    .result-card:hover { border-color: rgba(201,168,76,0.3); }
+    .result-card::before {
+      content: 'RESULT';
+      position: absolute;
+      top: 1rem; right: 1rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.4em;
+      color: rgba(201,168,76,0.25);
+    }
+
+    .result-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--ash);
+      letter-spacing: 0.2em;
+      margin-bottom: 1.2rem;
+    }
+
+    .result-matchup {
+      display: grid;
+      grid-template-columns: 1fr 30px 1fr;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-player { font-family: 'Oswald', sans-serif; }
+    .result-player-left { text-align: right; }
+    .result-player-right { text-align: left; }
+
+    .result-player-name {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--paper);
+      line-height: 1.2;
+    }
+    .result-player-team {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--ash);
+      letter-spacing: 0.2em;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .result-score {
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      font-weight: 700;
+    }
+    .result-player.winner .result-player-name { color: var(--gold-bright); }
+    .result-player.winner .result-score {
+      color: var(--gold-bright);
+      text-shadow: 0 0 12px rgba(240,192,64,0.4);
+    }
+    .result-player.loser .result-score { color: var(--ash); }
+
+    .result-sep {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.8rem;
+      color: rgba(154,138,122,0.4);
+      text-align: center;
+    }
+
+    .result-meta {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding-top: 0.8rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .result-meta-item {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--ash);
+      letter-spacing: 0.2em;
+      text-align: center;
+    }
+    .result-meta-item span {
+      display: block;
+      color: var(--paper);
+      font-size: 0.85rem;
+      margin-top: 0.2rem;
+    }
+
+    .result-note {
+      margin-top: 0.8rem;
+      font-size: 0.75rem;
+      color: var(--ash);
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* ===== REGISTER SECTION ===== */
+    .section-register {
+      position: relative;
+      padding: clamp(5rem, 12vw, 12rem) clamp(1.5rem, 5vw, 5rem);
+      z-index: 10;
+      text-align: center;
+      overflow: hidden;
+    }
+    .register-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(139,0,0,0.28) 0%, transparent 70%);
+    }
+    .register-eyebrow {
+      position: relative;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+    .register-title {
+      position: relative;
+      font-family: 'Zen Antique Soft', serif;
+      font-size: clamp(2rem, 6vw, 4rem);
+      color: var(--paper);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .register-desc {
+      position: relative;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      color: var(--ash);
+      line-height: 1.9;
+      max-width: 480px;
+      margin: 0 auto 3rem;
+    }
+    .register-btn {
+      position: relative;
+      display: inline-block;
+      padding: 1.2rem 3.5rem;
+      background: var(--crimson);
+      color: var(--paper);
+      text-decoration: none;
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      border: 2px solid var(--crimson);
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+      transition: all 0.3s ease;
+    }
+    .register-btn:hover {
+      background: var(--neon-red);
+      border-color: var(--neon-red);
+      box-shadow: 0 0 40px rgba(255,26,62,0.5), 0 0 80px rgba(255,26,62,0.2);
+      transform: translateY(-3px);
+    }
+    .register-note {
+      position: relative;
+      margin-top: 1.5rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.35em;
+      color: rgba(154,138,122,0.45);
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 600px) {
       .hero-details { flex-direction: column; gap: 1.5rem; }
@@ -862,6 +1163,20 @@
       .timeline-left { display: none; }
       .timeline-center { grid-column: 1; grid-row: 1 / 3; }
       .timeline-right { grid-column: 2; }
+
+      .match-row {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
+      }
+      .match-date { grid-column: 1 / -1; }
+      .match-player-left { text-align: left; }
+      .match-vs { order: -1; display: none; }
+      .match-status-badge { grid-column: 1 / -1; width: fit-content; }
+      .match-note-row { grid-column: 1 / -1; }
+
+      .result-matchup { grid-template-columns: 1fr; text-align: center; }
+      .result-player-left, .result-player-right { text-align: center; }
+      .result-sep { display: none; }
     }
   </style>
 </head>
@@ -959,23 +1274,13 @@
     <div class="vs-arena reveal">
       <div class="fighter-card fighter-left">
         <p class="fighter-tag">◆ PLAYER 1 ◆</p>
-        <h2 class="fighter-name">???</h2>
-        <p class="fighter-name-en">CHALLENGER</p>
-        <div class="fighter-stats">
-          <div class="stat-row">
-            <span class="stat-label">RANK</span>
-            <span class="stat-val">——</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">TEAM</span>
-            <span class="stat-val">——</span>
-          </div>
-        </div>
+        <h2 class="fighter-name" id="next-p1-name">——</h2>
+        <p class="fighter-name-en" id="next-p1-team">CHALLENGER</p>
       </div>
 
       <div class="vs-center">
         <div class="vs-text">VS</div>
-        <div class="vs-timer">
+        <div class="vs-timer" id="next-match-meta">
           <div class="timer-display">03:00:00</div>
           <div style="margin-top:0.3rem;">BATTLE TIME</div>
         </div>
@@ -983,18 +1288,8 @@
 
       <div class="fighter-card fighter-right">
         <p class="fighter-tag">◆ PLAYER 2 ◆</p>
-        <h2 class="fighter-name">???</h2>
-        <p class="fighter-name-en">CHALLENGER</p>
-        <div class="fighter-stats">
-          <div class="stat-row">
-            <span class="stat-label">RANK</span>
-            <span class="stat-val">——</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">TEAM</span>
-            <span class="stat-val">——</span>
-          </div>
-        </div>
+        <h2 class="fighter-name" id="next-p2-name">——</h2>
+        <p class="fighter-name-en" id="next-p2-team">CHALLENGER</p>
       </div>
     </div>
   </section>
@@ -1078,6 +1373,51 @@
       </div>
 
     </div>
+  </section>
+
+  <!-- ===== SCHEDULE ===== -->
+  <section class="section-schedule">
+    <div class="section-header reveal">
+      <span class="section-number">04</span>
+      <div class="section-title-wrap">
+        <h2>対戦スケジュール</h2>
+        <p>BATTLE SCHEDULE</p>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div id="schedule-list" class="schedule-list">
+      <div class="schedule-empty">LOADING...</div>
+    </div>
+  </section>
+
+  <!-- ===== RESULTS ===== -->
+  <section class="section-results">
+    <div class="section-header reveal">
+      <span class="section-number">05</span>
+      <div class="section-title-wrap">
+        <h2>過去の結果</h2>
+        <p>BATTLE RESULTS</p>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div id="results-list" class="results-grid">
+      <div class="results-empty">LOADING...</div>
+    </div>
+  </section>
+
+  <!-- ===== REGISTER ===== -->
+  <section class="section-register">
+    <div class="register-bg"></div>
+    <p class="register-eyebrow">◆ JOIN THE BATTLE ◆</p>
+    <h2 class="register-title reveal">参加登録</h2>
+    <p class="register-desc reveal">
+      仁義なき戦いへの参加を希望する者は、<br>下記のGoogleフォームより登録されたし。<br>
+      <br>己の全てを賭けて、戦いの場へ来い。
+    </p>
+    <a href="https://forms.gle/QrMwS6MXc7w7dMeR7" target="_blank" rel="noopener" class="register-btn reveal">
+      参加フォームへ進む
+    </a>
+    <p class="register-note">GOOGLE FORM — TAP TO REGISTER</p>
   </section>
 
   <!-- ===== MANIFESTO ===== -->
@@ -1205,6 +1545,123 @@
       seconds = (seconds + 1) % (3 * 3600 + 1);
       if (timerEl) timerEl.textContent = formatTime(seconds);
     }, 1000);
+
+    // ===== DATA LOADING =====
+    const STATUS_LABEL = { upcoming: 'UPCOMING', live: '● LIVE', completed: 'COMPLETED' };
+    const STATUS_LABEL_JA = { upcoming: '開催予定', live: 'LIVE', completed: '終了' };
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    async function loadSchedule() {
+      const listEl = document.getElementById('schedule-list');
+      try {
+        const res = await fetch('./data/schedule.json');
+        const data = await res.json();
+        const matches = data.matches || [];
+
+        if (matches.length === 0) {
+          listEl.innerHTML = '<div class="schedule-empty">スケジュールは準備中です / TBD</div>';
+          return;
+        }
+
+        // Populate VS section with the first non-completed match
+        const next = matches.find(m => m.status !== 'completed');
+        if (next) {
+          document.getElementById('next-p1-name').textContent = next.player1.name;
+          document.getElementById('next-p1-team').textContent = next.player1.team;
+          document.getElementById('next-p2-name').textContent = next.player2.name;
+          document.getElementById('next-p2-team').textContent = next.player2.team;
+          document.getElementById('next-match-meta').innerHTML = `
+            <div class="timer-display">${next.date ? formatDate(next.date) : '——'}</div>
+            <div style="margin-top:0.3rem;">${next.time || ''} &nbsp;${next.venue || ''}</div>
+          `;
+        }
+
+        // Render schedule list
+        listEl.innerHTML = matches.map(m => `
+          <div class="match-row status-${m.status} reveal">
+            <div class="match-date">
+              <span class="date-main">${formatDate(m.date)}</span>
+              <span class="time-sub">${m.time || ''}</span>
+              <span class="venue-sub">${m.venue || ''}</span>
+            </div>
+            <div class="match-player match-player-left">
+              <span class="player-team">${m.player1.team}</span>
+              ${m.player1.name}
+            </div>
+            <div class="match-vs">VS</div>
+            <div class="match-player match-player-right">
+              <span class="player-team">${m.player2.team}</span>
+              ${m.player2.name}
+            </div>
+            <div class="match-status-badge">${STATUS_LABEL[m.status] || m.status}</div>
+            ${m.note ? `<div class="match-note-row">${m.note}</div>` : ''}
+          </div>
+        `).join('');
+
+        // Re-observe new reveal elements
+        listEl.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      } catch (e) {
+        listEl.innerHTML = '<div class="schedule-empty">データを読み込めませんでした</div>';
+      }
+    }
+
+    async function loadResults() {
+      const listEl = document.getElementById('results-list');
+      try {
+        const res = await fetch('./data/results.json');
+        const data = await res.json();
+        const results = data.results || [];
+
+        if (results.length === 0) {
+          listEl.innerHTML = '<div class="results-empty">まだ結果はありません / NO RESULTS YET</div>';
+          listEl.style.display = 'block';
+          return;
+        }
+
+        listEl.innerHTML = results.map(r => {
+          const p1win = r.winner === 'player1';
+          const diff = Math.abs((r.player1.score || 0) - (r.player2.score || 0));
+          return `
+          <div class="result-card reveal">
+            <div class="result-date">${formatDate(r.date)}</div>
+            <div class="result-matchup">
+              <div class="result-player result-player-left ${p1win ? 'winner' : 'loser'}">
+                <span class="result-player-team">${r.player1.team || ''}</span>
+                <div class="result-player-name">${r.player1.name}</div>
+                <div class="result-score">${(r.player1.score || 0).toLocaleString()}</div>
+              </div>
+              <div class="result-sep">—</div>
+              <div class="result-player result-player-right ${!p1win ? 'winner' : 'loser'}">
+                <span class="result-player-team">${r.player2.team || ''}</span>
+                <div class="result-player-name">${r.player2.name}</div>
+                <div class="result-score">${(r.player2.score || 0).toLocaleString()}</div>
+              </div>
+            </div>
+            <div class="result-meta">
+              <div class="result-meta-item">
+                WINNER<span>${p1win ? r.player1.name : r.player2.name}</span>
+              </div>
+              ${diff ? `<div class="result-meta-item">SCORE DIFF<span>${diff.toLocaleString()}</span></div>` : ''}
+              ${r.total_rounds ? `<div class="result-meta-item">ROUNDS<span>${r.total_rounds}</span></div>` : ''}
+            </div>
+            ${r.note ? `<div class="result-note">${r.note}</div>` : ''}
+          </div>
+        `}).join('');
+
+        listEl.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      } catch (e) {
+        listEl.innerHTML = '<div class="results-empty">データを読み込めませんでした</div>';
+      }
+    }
+
+    loadSchedule();
+    loadResults();
 
     // ===== CURSOR SPARK =====
     document.addEventListener('mousemove', (e) => {
