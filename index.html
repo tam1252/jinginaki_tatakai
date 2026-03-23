@@ -912,13 +912,16 @@
       color: var(--paper);
       letter-spacing: 0.05em;
     }
-    .match-player .player-team {
+    .match-player .player-x {
       font-family: 'Share Tech Mono', monospace;
       font-size: 0.6rem;
       color: var(--ash);
-      letter-spacing: 0.2em;
+      letter-spacing: 0.1em;
       display: block;
+      text-decoration: none;
+      transition: color 0.2s ease;
     }
+    .match-player .player-x:hover { color: var(--gold); }
     .match-player-left { text-align: right; }
     .match-player-right { text-align: left; }
 
@@ -1571,9 +1574,15 @@
         const next = matches.find(m => m.status !== 'completed');
         if (next) {
           document.getElementById('next-p1-name').textContent = next.player1.name;
-          document.getElementById('next-p1-team').textContent = next.player1.team;
+          const p1xEl = document.getElementById('next-p1-team');
+          if (next.player1.x) {
+            p1xEl.innerHTML = `<a href="${next.player1.x}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.75rem;">@${next.player1.x.split('/').pop()}</a>`;
+          } else { p1xEl.textContent = ''; }
           document.getElementById('next-p2-name').textContent = next.player2.name;
-          document.getElementById('next-p2-team').textContent = next.player2.team;
+          const p2xEl = document.getElementById('next-p2-team');
+          if (next.player2.x) {
+            p2xEl.innerHTML = `<a href="${next.player2.x}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.75rem;">@${next.player2.x.split('/').pop()}</a>`;
+          } else { p2xEl.textContent = ''; }
           document.getElementById('next-match-meta').innerHTML = `
             <div class="timer-display">${next.date ? formatDate(next.date) : '——'}</div>
             <div style="margin-top:0.3rem;">${next.time || ''} &nbsp;${next.venue || ''}</div>
@@ -1589,12 +1598,12 @@
               <span class="venue-sub">${m.venue || ''}</span>
             </div>
             <div class="match-player match-player-left">
-              <span class="player-team">${m.player1.team}</span>
+              ${m.player1.x ? `<a class="player-x" href="${m.player1.x}" target="_blank" rel="noopener">@${m.player1.x.split('/').pop()}</a>` : ''}
               ${m.player1.name}
             </div>
             <div class="match-vs">VS</div>
             <div class="match-player match-player-right">
-              <span class="player-team">${m.player2.team}</span>
+              ${m.player2.x ? `<a class="player-x" href="${m.player2.x}" target="_blank" rel="noopener">@${m.player2.x.split('/').pop()}</a>` : ''}
               ${m.player2.name}
             </div>
             <div class="match-status-badge">${STATUS_LABEL[m.status] || m.status}</div>
@@ -1631,13 +1640,13 @@
             <div class="result-date">${formatDate(r.date)}</div>
             <div class="result-matchup">
               <div class="result-player result-player-left ${p1win ? 'winner' : 'loser'}">
-                <span class="result-player-team">${r.player1.team || ''}</span>
+                ${r.player1.x ? `<a class="result-player-team" href="${r.player1.x}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ash);">@${r.player1.x.split('/').pop()}</a>` : ''}
                 <div class="result-player-name">${r.player1.name}</div>
                 <div class="result-score">${(r.player1.score || 0).toLocaleString()}</div>
               </div>
               <div class="result-sep">—</div>
               <div class="result-player result-player-right ${!p1win ? 'winner' : 'loser'}">
-                <span class="result-player-team">${r.player2.team || ''}</span>
+                ${r.player2.x ? `<a class="result-player-team" href="${r.player2.x}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ash);">@${r.player2.x.split('/').pop()}</a>` : ''}
                 <div class="result-player-name">${r.player2.name}</div>
                 <div class="result-score">${(r.player2.score || 0).toLocaleString()}</div>
               </div>

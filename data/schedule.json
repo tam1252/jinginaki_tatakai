@@ -3,16 +3,15 @@
   "matches": [
     {
       "id": 1,
-      "date": "2026-04-05",
-      "time": "19:00",
-      "venue": "オンライン",
+      "date": "2026-03-29",
+      "time": "16:00",
       "player1": {
-        "name": "???",
-        "team": "TBD"
+        "name": "HITA*",
+        "x": "https://x.com/23k_h"
       },
       "player2": {
         "name": "???",
-        "team": "TBD"
+        "x": ""
       },
       "status": "upcoming",
       "note": "第1回戦。参加者決定次第更新。"
@@ -21,14 +20,13 @@
       "id": 2,
       "date": "2026-04-19",
       "time": "19:00",
-      "venue": "オンライン",
       "player1": {
         "name": "???",
-        "team": "TBD"
+        "x": ""
       },
       "player2": {
         "name": "???",
-        "team": "TBD"
+        "x": ""
       },
       "status": "upcoming",
       "note": ""
