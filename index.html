@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仁義なき戦い — BPL BATTLE EVENT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Antique+Soft&family=Noto+Serif+JP:wght@900&family=Oswald:wght@700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --crimson: #c8102e;
+      --blood: #8b0000;
+      --gold: #c9a84c;
+      --gold-bright: #f0c040;
+      --neon-red: #ff1a3e;
+      --ink: #0a0505;
+      --dark: #0f0808;
+      --paper: #f0e6d3;
+      --ash: #9a8a7a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--ink);
+      color: var(--paper);
+      font-family: 'Noto Serif JP', serif;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ===== SCANLINE OVERLAY ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ===== NOISE TEXTURE ===== */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.3;
+    }
+
+    /* ===== CANVAS PARTICLES ===== */
+    #particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    /* Ink splash background */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,0,0,0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(200,16,46,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 80% 20%, rgba(200,16,46,0.1) 0%, transparent 60%),
+        var(--ink);
+      z-index: -1;
+    }
+
+    /* Diagonal red slash */
+    .hero-slash {
+      position: absolute;
+      width: 200%;
+      height: 6px;
+      background: linear-gradient(90deg, transparent, var(--crimson), var(--neon-red), var(--crimson), transparent);
+      top: 50%;
+      left: -50%;
+      transform: rotate(-8deg);
+      box-shadow: 0 0 30px var(--neon-red), 0 0 60px rgba(255,26,62,0.5);
+      animation: slashPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes slashPulse {
+      0%, 100% { opacity: 0.6; box-shadow: 0 0 20px var(--neon-red), 0 0 40px rgba(255,26,62,0.3); }
+      50% { opacity: 1; box-shadow: 0 0 40px var(--neon-red), 0 0 80px rgba(255,26,62,0.6), 0 0 120px rgba(255,26,62,0.2); }
+    }
+
+    .event-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.6rem, 1.5vw, 0.85rem);
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeInDown 0.8s ease forwards 0.3s;
+      position: relative;
+    }
+
+    .event-label::before,
+    .event-label::after {
+      content: '◆';
+      margin: 0 1em;
+      color: var(--crimson);
+    }
+
+    /* ===== MAIN TITLE ===== */
+    .main-title {
+      position: relative;
+      text-align: center;
+      line-height: 1;
+      opacity: 0;
+      animation: titleReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s;
+    }
+
+    .title-kanji {
+      font-family: 'Zen Antique Soft', serif;
+      font-size: clamp(4rem, 14vw, 12rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+      background: linear-gradient(180deg,
+        #ffffff 0%,
+        var(--paper) 30%,
+        var(--gold-bright) 60%,
+        var(--gold) 80%,
+        var(--crimson) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 20px rgba(200,16,46,0.8)) drop-shadow(0 0 60px rgba(200,16,46,0.4));
+      position: relative;
+      display: block;
+    }
+
+    /* Glitch effect */
+    .title-kanji::before,
+    .title-kanji::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      background: linear-gradient(180deg,
+        #ffffff 0%,
+        var(--paper) 30%,
+        var(--gold-bright) 60%,
+        var(--gold) 80%,
+        var(--crimson) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .title-kanji::before {
+      animation: glitch1 4s infinite;
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+      transform: translate(-3px, 0);
+    }
+
+    .title-kanji::after {
+      animation: glitch2 4s infinite;
+      clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+      transform: translate(3px, 0);
+    }
+
+    @keyframes glitch1 {
+      0%, 90%, 100% { transform: translate(0); opacity: 0; }
+      92% { transform: translate(-4px, 2px); opacity: 0.8; filter: hue-rotate(90deg); }
+      94% { transform: translate(4px, -2px); opacity: 0.6; }
+      96% { transform: translate(-2px, 1px); opacity: 0.8; }
+      98% { transform: translate(0); opacity: 0; }
+    }
+
+    @keyframes glitch2 {
+      0%, 88%, 100% { transform: translate(0); opacity: 0; }
+      90% { transform: translate(4px, -2px); opacity: 0.7; filter: hue-rotate(-60deg); }
+      92% { transform: translate(-4px, 2px); opacity: 0.5; }
+      94% { transform: translate(2px, -1px); opacity: 0.7; }
+      96% { transform: translate(0); opacity: 0; }
+    }
+
+    .title-sub {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(0.8rem, 2.5vw, 1.4rem);
+      letter-spacing: 0.6em;
+      color: var(--ash);
+      text-transform: uppercase;
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .title-sub .accent { color: var(--neon-red); }
+
+    /* ===== HERO DETAILS ===== */
+    .hero-details {
+      display: flex;
+      gap: clamp(2rem, 6vw, 6rem);
+      margin-top: 4rem;
+      opacity: 0;
+      animation: fadeInUp 0.8s ease forwards 1.2s;
+    }
+
+    .detail-item {
+      text-align: center;
+      position: relative;
+    }
+
+    .detail-item::after {
+      content: '';
+      position: absolute;
+      right: calc(-1 * clamp(1rem, 3vw, 3rem));
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, var(--gold), transparent);
+    }
+
+    .detail-item:last-child::after { display: none; }
+
+    .detail-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .detail-value {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: var(--paper);
+      line-height: 1;
+    }
+
+    .detail-value .unit {
+      font-size: 0.5em;
+      color: var(--ash);
+      margin-left: 0.2em;
+    }
+
+    /* ===== SCROLL INDICATOR ===== */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 2s;
+    }
+
+    .scroll-hint span {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--ash);
+    }
+
+    .scroll-arrow {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(180deg, var(--crimson), transparent);
+      animation: scrollArrow 1.5s ease-in-out infinite;
+    }
+
+    @keyframes scrollArrow {
+      0% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      50% { transform: scaleY(0.3); transform-origin: top; opacity: 0.5; }
+      100% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+    }
+
+    /* ===== BATTLE FORMAT SECTION ===== */
+    .section-battle {
+      position: relative;
+      padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem);
+      z-index: 10;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .section-number {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 700;
+      color: var(--crimson);
+      opacity: 0.3;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .section-title-wrap h2 {
+      font-family: 'Zen Antique Soft', serif;
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      color: var(--paper);
+      line-height: 1.2;
+    }
+
+    .section-title-wrap p {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      margin-top: 0.5rem;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--crimson), transparent);
+      margin-bottom: 3rem;
+    }
+
+    /* ===== BATTLE RULES GRID ===== */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+      gap: 2px;
+    }
+
+    .rule-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(200,16,46,0.15);
+      padding: clamp(1.5rem, 3vw, 2.5rem);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    .rule-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--neon-red), var(--blood));
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rule-card:hover {
+      border-color: rgba(200,16,46,0.5);
+      background: rgba(200,16,46,0.05);
+    }
+
+    .rule-card:hover::before {
+      transform: scaleY(1);
+    }
+
+    .rule-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .rule-card h3 {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      letter-spacing: 0.1em;
+      color: var(--gold-bright);
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    .rule-card p {
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      line-height: 1.8;
+      color: var(--ash);
+    }
+
+    .rule-card p strong {
+      color: var(--paper);
+      font-weight: 900;
+    }
+
+    /* ===== VS SECTION ===== */
+    .section-vs {
+      position: relative;
+      padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem);
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .vs-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 20% 50%, rgba(139,0,0,0.2) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 80% 50%, rgba(139,0,0,0.2) 0%, transparent 70%),
+        rgba(15, 5, 5, 0.8);
+    }
+
+    .vs-arena {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: clamp(1rem, 4vw, 4rem);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .fighter-card {
+      position: relative;
+      padding: clamp(2rem, 4vw, 3rem);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    .fighter-card.fighter-left {
+      text-align: right;
+      border-left: 3px solid var(--gold);
+    }
+
+    .fighter-card.fighter-right {
+      text-align: left;
+      border-right: 3px solid var(--crimson);
+    }
+
+    .fighter-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      margin-bottom: 1rem;
+    }
+
+    .fighter-left .fighter-tag { color: var(--gold); }
+    .fighter-right .fighter-tag { color: var(--neon-red); }
+
+    .fighter-name {
+      font-family: 'Zen Antique Soft', serif;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 900;
+      color: var(--paper);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .fighter-name-en {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(0.8rem, 1.5vw, 1rem);
+      color: var(--ash);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .fighter-stats {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .fighter-left .fighter-stats { align-items: flex-end; }
+    .fighter-right .fighter-stats { align-items: flex-start; }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .fighter-left .stat-row { flex-direction: row-reverse; }
+
+    .stat-label { color: var(--ash); letter-spacing: 0.2em; }
+    .stat-val { color: var(--gold-bright); font-size: 0.9rem; }
+
+    .vs-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .vs-text {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      color: var(--neon-red);
+      line-height: 1;
+      text-shadow:
+        0 0 20px var(--neon-red),
+        0 0 40px rgba(255,26,62,0.5),
+        0 0 80px rgba(255,26,62,0.2);
+      animation: vsPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes vsPulse {
+      0%, 100% {
+        text-shadow: 0 0 20px var(--neon-red), 0 0 40px rgba(255,26,62,0.5);
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 40px var(--neon-red), 0 0 80px rgba(255,26,62,0.7), 0 0 120px rgba(255,26,62,0.3);
+        transform: scale(1.05);
+      }
+    }
+
+    .vs-timer {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--ash);
+      text-align: center;
+    }
+
+    .timer-display {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      color: var(--gold-bright);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== TIMELINE SECTION ===== */
+    .section-timeline {
+      position: relative;
+      padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem);
+      z-index: 10;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, var(--crimson), var(--blood), transparent);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      align-items: start;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .timeline-left {
+      text-align: right;
+      padding-top: 0.2rem;
+    }
+
+    .timeline-right {
+      text-align: left;
+      padding-top: 0.2rem;
+    }
+
+    .timeline-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .timeline-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--crimson);
+      border: 2px solid var(--neon-red);
+      box-shadow: 0 0 15px var(--neon-red), 0 0 30px rgba(255,26,62,0.3);
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot.gold {
+      background: var(--gold);
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 15px var(--gold), 0 0 30px rgba(201,168,76,0.3);
+    }
+
+    .tl-time {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      margin-bottom: 0.3rem;
+    }
+
+    .tl-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      color: var(--paper);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tl-desc {
+      font-size: 0.8rem;
+      color: var(--ash);
+      margin-top: 0.3rem;
+      line-height: 1.6;
+    }
+
+    /* ===== MANIFESTO SECTION ===== */
+    .section-manifesto {
+      position: relative;
+      padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem);
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .manifesto-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 100% 80% at 50% 50%, rgba(139,0,0,0.25) 0%, transparent 70%);
+    }
+
+    .manifesto-text {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .manifesto-quote {
+      font-family: 'Zen Antique Soft', serif;
+      font-size: clamp(1.5rem, 5vw, 4rem);
+      line-height: 1.4;
+      color: var(--paper);
+      position: relative;
+    }
+
+    .manifesto-quote::before {
+      content: '「';
+      color: var(--crimson);
+    }
+
+    .manifesto-quote::after {
+      content: '」';
+      color: var(--crimson);
+    }
+
+    .manifesto-quote em {
+      font-style: normal;
+      color: var(--gold-bright);
+      text-shadow: 0 0 20px rgba(240,192,64,0.5);
+    }
+
+    .manifesto-sub {
+      margin-top: 2rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.4em;
+      color: var(--ash);
+    }
+
+    /* Red diagonal stripe decoration */
+    .stripe-deco {
+      position: absolute;
+      width: 400%;
+      height: 80px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 40px,
+        rgba(200,16,46,0.06) 40px,
+        rgba(200,16,46,0.06) 80px
+      );
+      transform: rotate(-8deg);
+      pointer-events: none;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      position: relative;
+      padding: 4rem clamp(1.5rem, 5vw, 5rem) 3rem;
+      border-top: 1px solid rgba(200,16,46,0.2);
+      z-index: 10;
+      text-align: center;
+    }
+
+    .footer-title {
+      font-family: 'Zen Antique Soft', serif;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      background: linear-gradient(180deg, var(--paper) 0%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .footer-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      color: var(--ash);
+    }
+
+    .footer-copy {
+      margin-top: 3rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: rgba(154, 138, 122, 0.3);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes titleReveal {
+      from { opacity: 0; transform: scale(0.95) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Intersection Observer animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ===== FIRE EFFECT ===== */
+    .fire-border {
+      position: relative;
+    }
+
+    .fire-border::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg,
+        transparent,
+        var(--blood),
+        var(--neon-red),
+        var(--gold-bright),
+        var(--neon-red),
+        var(--blood),
+        transparent
+      );
+      animation: fireLine 2s linear infinite;
+      background-size: 200% 100%;
+    }
+
+    @keyframes fireLine {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Live badge */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(200,16,46,0.15);
+      border: 1px solid var(--crimson);
+      padding: 0.3rem 0.8rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--neon-red);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards 0.1s;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-red);
+      box-shadow: 0 0 8px var(--neon-red);
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .hero-details { flex-direction: column; gap: 1.5rem; }
+      .detail-item::after { display: none; }
+      .vs-arena { grid-template-columns: 1fr; }
+      .vs-center { order: -1; }
+      .fighter-card.fighter-left, .fighter-card.fighter-right {
+        text-align: center;
+        border-left: none;
+        border-right: none;
+        border-top: 3px solid;
+      }
+      .fighter-left .fighter-stats, .fighter-right .fighter-stats { align-items: center; }
+      .fighter-left .stat-row { flex-direction: row; }
+      .timeline::before { left: 30px; }
+      .timeline-item { grid-template-columns: 30px 1fr; grid-template-rows: auto auto; }
+      .timeline-left { display: none; }
+      .timeline-center { grid-column: 1; grid-row: 1 / 3; }
+      .timeline-right { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="particles"></canvas>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-slash"></div>
+
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      BEATMANIA IIDX &nbsp;|&nbsp; BPL BATTLE
+    </div>
+
+    <p class="event-label">Special Event 2026</p>
+
+    <div class="main-title fire-border">
+      <span class="title-kanji" data-text="仁義なき戦い">仁義なき戦い</span>
+      <p class="title-sub">
+        <span class="accent">BATTLE</span> WITHOUT HONOR &amp; <span class="accent">HUMANITY</span>
+      </p>
+    </div>
+
+    <div class="hero-details">
+      <div class="detail-item">
+        <p class="detail-label">Format</p>
+        <p class="detail-value">1<span class="unit">vs</span>1</p>
+      </div>
+      <div class="detail-item">
+        <p class="detail-label">Duration</p>
+        <p class="detail-value">3<span class="unit">時間</span></p>
+      </div>
+      <div class="detail-item">
+        <p class="detail-label">Style</p>
+        <p class="detail-value" style="font-size: clamp(1rem, 2.5vw, 1.6rem);">BPL<span class="unit">Battle</span></p>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <span>SCROLL</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- ===== BATTLE FORMAT ===== -->
+  <section class="section-battle">
+    <div class="section-header reveal">
+      <span class="section-number">01</span>
+      <div class="section-title-wrap">
+        <h2>バトル形式</h2>
+        <p>BATTLE FORMAT</p>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="rules-grid">
+      <div class="rule-card reveal reveal-delay-1">
+        <span class="rule-icon">⚔️</span>
+        <h3>BPL Battle Form</h3>
+        <p>BEMANI Pro League公式ルールに準拠した<strong>真剣勝負</strong>のバトル形式。プレイヤーは同一楽曲を同時プレイし、スコアで雌雄を決する。</p>
+      </div>
+      <div class="rule-card reveal reveal-delay-2">
+        <span class="rule-icon">⏱️</span>
+        <h3>180 Minutes War</h3>
+        <p>休憩なしの<strong>3時間連続戦</strong>。体力・精神力・集中力すべてが試される極限の耐久バトル。最後まで戦い抜いた者のみが勝者となる。</p>
+      </div>
+      <div class="rule-card reveal reveal-delay-3">
+        <span class="rule-icon">🎵</span>
+        <h3>楽曲選択</h3>
+        <p>各ラウンド、<strong>交互に楽曲を選択</strong>。自分の得意曲で攻め、相手の選曲に対応する総合力が問われる。</p>
+      </div>
+      <div class="rule-card reveal reveal-delay-4">
+        <span class="rule-icon">🏆</span>
+        <h3>勝敗判定</h3>
+        <p>各曲の<strong>スコア差の累計</strong>で最終勝者を決定。1曲1曲の積み重ねが、3時間後の結果を左右する。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== VS SECTION ===== -->
+  <section class="section-vs">
+    <div class="vs-bg"></div>
+
+    <div class="section-header reveal" style="position:relative;">
+      <span class="section-number">02</span>
+      <div class="section-title-wrap">
+        <h2>対戦カード</h2>
+        <p>MATCHUP</p>
+      </div>
+    </div>
+
+    <div class="vs-arena reveal">
+      <div class="fighter-card fighter-left">
+        <p class="fighter-tag">◆ PLAYER 1 ◆</p>
+        <h2 class="fighter-name">???</h2>
+        <p class="fighter-name-en">CHALLENGER</p>
+        <div class="fighter-stats">
+          <div class="stat-row">
+            <span class="stat-label">RANK</span>
+            <span class="stat-val">——</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">TEAM</span>
+            <span class="stat-val">——</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="vs-center">
+        <div class="vs-text">VS</div>
+        <div class="vs-timer">
+          <div class="timer-display">03:00:00</div>
+          <div style="margin-top:0.3rem;">BATTLE TIME</div>
+        </div>
+      </div>
+
+      <div class="fighter-card fighter-right">
+        <p class="fighter-tag">◆ PLAYER 2 ◆</p>
+        <h2 class="fighter-name">???</h2>
+        <p class="fighter-name-en">CHALLENGER</p>
+        <div class="fighter-stats">
+          <div class="stat-row">
+            <span class="stat-label">RANK</span>
+            <span class="stat-val">——</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">TEAM</span>
+            <span class="stat-val">——</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TIMELINE ===== -->
+  <section class="section-timeline">
+    <div class="section-header reveal">
+      <span class="section-number">03</span>
+      <div class="section-title-wrap">
+        <h2>タイムライン</h2>
+        <p>EVENT SCHEDULE</p>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="timeline">
+
+      <div class="timeline-item reveal">
+        <div class="timeline-left">
+          <p class="tl-time">OPENING</p>
+          <p class="tl-title">開幕</p>
+          <p class="tl-desc">両選手入場。戦いの幕が上がる。</p>
+        </div>
+        <div class="timeline-center">
+          <div class="timeline-dot gold"></div>
+        </div>
+        <div class="timeline-right">
+        </div>
+      </div>
+
+      <div class="timeline-item reveal reveal-delay-1">
+        <div class="timeline-left">
+        </div>
+        <div class="timeline-center">
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-right">
+          <p class="tl-time">ROUND 1–∞</p>
+          <p class="tl-title">連続バトル開始</p>
+          <p class="tl-desc">3時間、楽曲選択を交互に繰り返しながら戦い続ける。休憩なし。容赦なし。</p>
+        </div>
+      </div>
+
+      <div class="timeline-item reveal reveal-delay-2">
+        <div class="timeline-left">
+          <p class="tl-time">MID BATTLE</p>
+          <p class="tl-title">1時間30分経過</p>
+          <p class="tl-desc">折り返し地点。スコア差の中間集計を確認。</p>
+        </div>
+        <div class="timeline-center">
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-right">
+        </div>
+      </div>
+
+      <div class="timeline-item reveal reveal-delay-3">
+        <div class="timeline-left">
+        </div>
+        <div class="timeline-center">
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-right">
+          <p class="tl-time">LAST 30 MIN</p>
+          <p class="tl-title">最終局面</p>
+          <p class="tl-desc">残り30分。追い込みの逆転劇か、逃げ切りか。極限の心理戦。</p>
+        </div>
+      </div>
+
+      <div class="timeline-item reveal reveal-delay-4">
+        <div class="timeline-left">
+          <p class="tl-time">FINAL</p>
+          <p class="tl-title">決着</p>
+          <p class="tl-desc">3時間後、累計スコア差で勝者が決定。仁義なき戦いの終焉。</p>
+        </div>
+        <div class="timeline-center">
+          <div class="timeline-dot gold"></div>
+        </div>
+        <div class="timeline-right">
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== MANIFESTO ===== -->
+  <section class="section-manifesto">
+    <div class="manifesto-bg"></div>
+    <div class="stripe-deco" style="top: 20%;"></div>
+    <div class="stripe-deco" style="bottom: 20%; transform: rotate(-12deg);"></div>
+
+    <div class="manifesto-text reveal">
+      <p class="manifesto-quote">
+        勝つか、<em>死ぬか</em>。<br>それだけだ。
+      </p>
+      <p class="manifesto-sub">— BPL BATTLE × IIDX —</p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-title">仁義なき戦い</div>
+    <p class="footer-sub">BEATMANIA IIDX &nbsp;/&nbsp; BPL BATTLE FORMAT &nbsp;/&nbsp; 3H ENDURANCE</p>
+    <p class="footer-copy">© 2026 JINGINAKI TATAKAI — ALL RIGHTS RESERVED</p>
+  </footer>
+
+  <script>
+    // ===== PARTICLE SYSTEM =====
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const PARTICLE_COUNT = 60;
+    const particles = [];
+
+    class Particle {
+      constructor() { this.reset(true); }
+
+      reset(initial = false) {
+        this.x = Math.random() * canvas.width;
+        this.y = initial ? Math.random() * canvas.height : canvas.height + 10;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedY = -(Math.random() * 0.8 + 0.2);
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.life = 1;
+        this.decay = Math.random() * 0.003 + 0.001;
+
+        const r = Math.random();
+        if (r < 0.5) {
+          // red sparks
+          this.r = 200 + Math.random() * 55;
+          this.g = Math.floor(Math.random() * 40);
+          this.b = Math.floor(Math.random() * 40);
+        } else if (r < 0.8) {
+          // gold sparks
+          this.r = 201 + Math.floor(Math.random() * 54);
+          this.g = 150 + Math.floor(Math.random() * 50);
+          this.b = 40 + Math.floor(Math.random() * 40);
+        } else {
+          // white
+          this.r = 240; this.g = 230; this.b = 210;
+        }
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life -= this.decay;
+        if (this.life <= 0 || this.y < -10) this.reset();
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.life * 0.7;
+        ctx.fillStyle = `rgb(${this.r},${this.g},${this.b})`;
+        ctx.shadowColor = `rgb(${this.r},${this.g},${this.b})`;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push(new Particle());
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // ===== INTERSECTION OBSERVER =====
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    // ===== LIVE TIMER =====
+    // Counts up from 00:00:00 to demonstrate the battle timer
+    let seconds = 0;
+    const timerEl = document.querySelector('.timer-display');
+
+    function formatTime(s) {
+      const h = Math.floor(s / 3600).toString().padStart(2, '0');
+      const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+      const sec = (s % 60).toString().padStart(2, '0');
+      return `${h}:${m}:${sec}`;
+    }
+
+    // Simulate battle in progress
+    setInterval(() => {
+      seconds = (seconds + 1) % (3 * 3600 + 1);
+      if (timerEl) timerEl.textContent = formatTime(seconds);
+    }, 1000);
+
+    // ===== CURSOR SPARK =====
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.85) {
+        const spark = new Particle();
+        spark.x = e.clientX;
+        spark.y = e.clientY;
+        spark.size = Math.random() * 3 + 1;
+        spark.speedY = -(Math.random() * 2 + 1);
+        spark.speedX = (Math.random() - 0.5) * 2;
+        spark.decay = 0.02;
+        particles.push(spark);
+        if (particles.length > PARTICLE_COUNT + 50) {
+          particles.splice(0, 5);
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
