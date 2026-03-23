@@ -1,4 +1,14 @@
 {
-  "_comment": "winner: 'player1' or 'player2'",
-  "results": []
+  "_comment": "match_id はschedule.jsonのidと対応。winner: 'player1' or 'player2'",
+  "results": [
+    {
+      "_example": "以下はサンプル。実際の結果を入力したら _example ごと削除してください",
+      "match_id": 1,
+      "player1_score": 185420,
+      "player2_score": 172350,
+      "winner": "player1",
+      "total_rounds": 14,
+      "note": "接戦の末逆転勝利"
+    }
+  ]
 }

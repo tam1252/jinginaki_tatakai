@@ -1,5 +1,5 @@
 {
-  "_comment": "status: upcoming / live / completed / private(非表示)",
+  "_comment": "status: upcoming / live / completed / private(非表示)  |  youtube_url: YouTubeのURL（空欄でもOK）",
   "matches": [
     {
       "id": 1,
@@ -8,6 +8,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "upcoming",
+      "youtube_url": "",
       "note": "通常回予選15位vs16位。お互い本気を見せようや。"
     },
     {
@@ -16,7 +17,8 @@
       "time": "??:??",
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
-      "status": "private",
+      "status": "upcoming",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -26,6 +28,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -35,6 +38,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -44,6 +48,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -53,6 +58,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -62,6 +68,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -71,6 +78,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -80,6 +88,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     },
     {
@@ -89,6 +98,7 @@
       "player1": { "name": "HITA*", "x": "https://x.com/23k_h" },
       "player2": { "name": "???", "x": "" },
       "status": "private",
+      "youtube_url": "",
       "note": ""
     }
   ]
