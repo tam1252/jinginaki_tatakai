@@ -736,8 +736,21 @@
       color: var(--ash);
     }
 
+    .footer-organizer {
+      margin-top: 1rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      color: var(--ash);
+    }
+    .footer-x-link {
+      color: var(--gold);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .footer-x-link:hover { color: var(--gold-bright); }
     .footer-copy {
-      margin-top: 3rem;
+      margin-top: 2rem;
       font-family: 'Share Tech Mono', monospace;
       font-size: 0.6rem;
       letter-spacing: 0.2em;
@@ -1441,6 +1454,9 @@
   <footer>
     <div class="footer-title">仁義なき戦い</div>
     <p class="footer-sub">BEATMANIA IIDX &nbsp;/&nbsp; BPL BATTLE FORMAT &nbsp;/&nbsp; 3H ENDURANCE</p>
+    <p class="footer-organizer">
+      主催: <a href="https://x.com/23k_h" target="_blank" rel="noopener" class="footer-x-link">ひたらぎ</a>
+    </p>
     <p class="footer-copy">© 2026 JINGINAKI TATAKAI — ALL RIGHTS RESERVED</p>
   </footer>
 
@@ -1563,7 +1579,7 @@
       try {
         const res = await fetch('./data/schedule.json');
         const data = await res.json();
-        const matches = data.matches || [];
+        const matches = (data.matches || []).filter(m => m.status !== 'private');
 
         if (matches.length === 0) {
           listEl.innerHTML = '<div class="schedule-empty">スケジュールは準備中です / TBD</div>';
