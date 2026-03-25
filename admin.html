@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理画面 — 仁義なき戦い</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Share+Tech+Mono&family=Oswald:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0a0a;
+      --surface: #1a1010;
+      --surface2: #221515;
+      --border: #3a2020;
+      --border-active: #c8102e;
+      --crimson: #c8102e;
+      --gold: #c9a84c;
+      --gold-bright: #f0c040;
+      --text: #e8d8d0;
+      --muted: #8a7070;
+      --green: #3a9960;
+      --green-bg: rgba(58,153,96,0.12);
+      --orange: #d4811a;
+      --orange-bg: rgba(212,129,26,0.12);
+      --blue: #3a7fc1;
+      --blue-bg: rgba(58,127,193,0.12);
+      --red-bg: rgba(200,16,46,0.12);
+      --gray-bg: rgba(100,80,80,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .header-title span {
+      color: var(--crimson);
+      margin-right: 8px;
+    }
+
+    .header-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--crimson);
+      color: white;
+    }
+    .btn-primary:hover { background: #e01535; }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--muted); }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #0f0a0a;
+    }
+    .btn-gold:hover { background: var(--gold-bright); }
+
+    .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ===== LAYOUT ===== */
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 56px);
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+    }
+
+    .sidebar-section {
+      margin-bottom: 24px;
+    }
+
+    .sidebar-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--muted);
+      padding: 0 16px;
+      margin-bottom: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+      border-left: 2px solid transparent;
+      user-select: none;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--surface2); }
+    .nav-item.active {
+      color: var(--text);
+      background: var(--red-bg);
+      border-left-color: var(--crimson);
+    }
+
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .nav-badge {
+      margin-left: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      color: var(--muted);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 16px;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      padding: 28px 32px;
+      overflow-y: auto;
+    }
+
+    /* ===== OPEN FOLDER SCREEN ===== */
+    #screen-open {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 56px);
+      gap: 16px;
+      text-align: center;
+    }
+
+    .open-icon { font-size: 3rem; opacity: 0.4; }
+
+    .open-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.1em;
+    }
+
+    .open-desc {
+      color: var(--muted);
+      font-size: 0.85rem;
+      max-width: 380px;
+      line-height: 1.8;
+    }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.08em;
+    }
+
+    /* ===== MATCH CARDS ===== */
+    .match-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .match-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+
+    .match-card:hover { border-color: #5a3030; }
+
+    .match-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--surface2);
+    }
+
+    .match-num {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      color: var(--crimson);
+      width: 32px;
+      flex-shrink: 0;
+    }
+
+    .match-header-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .match-date-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--gold);
+    }
+
+    .match-players-tag {
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .match-players-tag .vs { color: var(--crimson); margin: 0 6px; font-size: 0.7rem; font-weight: 700; }
+
+    .status-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      padding: 2px 8px;
+      border: 1px solid;
+    }
+
+    .status-upcoming { color: var(--gold); border-color: var(--gold); background: rgba(201,168,76,0.1); }
+    .status-live { color: #ff4444; border-color: #ff4444; background: rgba(255,68,68,0.15); animation: liveBlink 1.2s ease-in-out infinite; }
+    .status-completed { color: var(--green); border-color: var(--green); background: var(--green-bg); }
+    .status-private { color: var(--muted); border-color: var(--border); background: var(--gray-bg); }
+
+    @keyframes liveBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .youtube-indicator {
+      font-size: 0.7rem;
+      color: #e03030;
+      margin-left: auto;
+    }
+
+    .collapse-arrow {
+      color: var(--muted);
+      font-size: 0.7rem;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .match-card.expanded .collapse-arrow { transform: rotate(180deg); }
+
+    .match-card-body {
+      display: none;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .match-card.expanded .match-card-body { display: block; }
+
+    /* ===== FORM ===== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 20px;
+    }
+
+    .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .form-grid.cols-1 { grid-template-columns: 1fr; }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.span-2 { grid-column: span 2; }
+    .form-group.span-3 { grid-column: span 3; }
+
+    label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    input[type="text"], input[type="date"], input[type="time"],
+    input[type="number"], input[type="url"], textarea, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 0.85rem;
+      width: 100%;
+      transition: border-color 0.15s ease;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--crimson);
+    }
+
+    input[readonly] {
+      color: var(--muted);
+      cursor: not-allowed;
+      background: var(--surface2);
+    }
+
+    select option { background: #1a1010; }
+
+    textarea { resize: vertical; min-height: 60px; }
+
+    .form-section-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-spacer { height: 16px; }
+
+    .player-row {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      gap: 12px;
+    }
+
+    /* ===== RESULT SECTION ===== */
+    .result-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .result-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .score-display {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .score-display .score-num {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.8rem;
+      text-align: center;
+      color: var(--gold-bright);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 8px;
+    }
+
+    .score-display .score-num.winner-score {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(201,168,76,0.2);
+    }
+
+    .score-display .score-sep {
+      text-align: center;
+      color: var(--crimson);
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.2rem;
+    }
+
+    .score-input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .winner-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .winner-btn {
+      padding: 8px;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 0.8rem;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .winner-btn:hover { border-color: var(--gold); color: var(--text); }
+    .winner-btn.selected { border-color: var(--gold); background: rgba(201,168,76,0.15); color: var(--gold-bright); font-weight: 700; }
+
+    /* ===== ACTION BAR ===== */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      font-size: 0.85rem;
+      z-index: 9999;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error { border-left: 3px solid var(--crimson); }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.8rem;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .stat-value.red { color: var(--crimson); }
+    .stat-value.gold { color: var(--gold-bright); }
+    .stat-value.green { color: var(--green); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.3; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+      .form-group.span-3 { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-title"><span>⚔</span> 仁義なき戦い ADMIN</div>
+      <span class="header-badge" id="folder-name">未接続</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-secondary" id="btn-open-folder">📁 フォルダを開く</button>
+      <button class="btn btn-gold" id="btn-save-all" disabled>💾 すべて保存</button>
+    </div>
+  </header>
+
+  <!-- OPEN FOLDER SCREEN -->
+  <div id="screen-open">
+    <div class="open-icon">📁</div>
+    <div class="open-title">dataフォルダを開く</div>
+    <p class="open-desc">
+      「フォルダを開く」をクリックして、リポジトリ内の<br>
+      <strong>data/</strong> フォルダを選択してください。<br>
+      schedule.json と results.json を読み込みます。
+    </p>
+    <button class="btn btn-primary" onclick="openFolder()">📁 フォルダを開く</button>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="layout" id="main-layout" style="display:none;">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">MENU</div>
+        <div class="nav-item active" data-page="dashboard" onclick="switchPage(this)">
+          <span class="nav-icon">🏠</span> ダッシュボード
+        </div>
+        <div class="nav-item" data-page="schedule" onclick="switchPage(this)">
+          <span class="nav-icon">📅</span> スケジュール
+          <span class="nav-badge" id="nav-schedule-count">0</span>
+        </div>
+        <div class="nav-item" data-page="results" onclick="switchPage(this)">
+          <span class="nav-icon">🏆</span> 結果入力
+          <span class="nav-badge" id="nav-results-count">0</span>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">LINKS</div>
+        <div class="nav-item" onclick="window.open('index.html','_blank')">
+          <span class="nav-icon">🌐</span> 公開ページ
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard">
+        <div class="page-header">
+          <div class="page-title">ダッシュボード</div>
+        </div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div style="color:var(--muted);font-size:0.8rem;">最終更新：<span id="last-updated">——</span></div>
+      </div>
+
+      <!-- SCHEDULE PAGE -->
+      <div id="page-schedule" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">スケジュール管理</div>
+        </div>
+        <div class="match-list" id="schedule-list"></div>
+      </div>
+
+      <!-- RESULTS PAGE -->
+      <div id="page-results" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">結果入力</div>
+        </div>
+        <div class="match-list" id="results-list"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let dirHandle = null;
+    let scheduleData = null;
+    let resultsData = null;
+    let isDirty = false;
+
+    // ===== FILE ACCESS =====
+    async function openFolder() {
+      try {
+        dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        document.getElementById('folder-name').textContent = dirHandle.name;
+        await loadData();
+        document.getElementById('screen-open').style.display = 'none';
+        document.getElementById('main-layout').style.display = 'grid';
+        document.getElementById('btn-save-all').disabled = false;
+        renderAll();
+        showToast('✅ データを読み込みました', 'success');
+      } catch (e) {
+        if (e.name !== 'AbortError') showToast('❌ フォルダを開けませんでした', 'error');
+      }
+    }
+
+    async function loadData() {
+      const schedFile = await dirHandle.getFileHandle('schedule.json');
+      scheduleData = JSON.parse(await (await schedFile.getFile()).text());
+
+      const resFile = await dirHandle.getFileHandle('results.json');
+      resultsData = JSON.parse(await (await resFile.getFile()).text());
+    }
+
+    async function saveAll() {
+      try {
+        const schedFile = await dirHandle.getFileHandle('schedule.json');
+        const sw = await schedFile.createWritable();
+        await sw.write(JSON.stringify(scheduleData, null, 2) + '\n');
+        await sw.close();
+
+        const resFile = await dirHandle.getFileHandle('results.json');
+        const rw = await resFile.createWritable();
+        await rw.write(JSON.stringify(resultsData, null, 2) + '\n');
+        await rw.close();
+
+        isDirty = false;
+        document.getElementById('last-updated').textContent = new Date().toLocaleString('ja-JP');
+        showToast('💾 保存しました', 'success');
+      } catch (e) {
+        showToast('❌ 保存に失敗しました: ' + e.message, 'error');
+      }
+    }
+
+    document.getElementById('btn-open-folder').addEventListener('click', openFolder);
+    document.getElementById('btn-save-all').addEventListener('click', saveAll);
+
+    // ===== NAVIGATION =====
+    function switchPage(el) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      const page = el.dataset.page;
+      document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+      document.getElementById('page-' + page).style.display = 'block';
+    }
+
+    // ===== RENDER ALL =====
+    function renderAll() {
+      renderDashboard();
+      renderSchedule();
+      renderResults();
+      updateNavBadges();
+    }
+
+    // ===== DASHBOARD =====
+    function renderDashboard() {
+      const matches = scheduleData.matches;
+      const visible = matches.filter(m => m.status !== 'private');
+      const completed = matches.filter(m => m.status === 'completed');
+      const upcoming = matches.filter(m => m.status === 'upcoming' || m.status === 'live');
+      const results = resultsData.results.filter(r => !r._example);
+
+      document.getElementById('stats-grid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-label">TOTAL MATCHES</div>
+          <div class="stat-value red">${visible.length}<span style="font-size:1rem;color:var(--muted);"> / 10</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">UPCOMING</div>
+          <div class="stat-value gold">${upcoming.length}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">COMPLETED</div>
+          <div class="stat-value green">${completed.length}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">RESULTS ENTERED</div>
+          <div class="stat-value">${results.length}</div>
+        </div>
+      `;
+
+      document.getElementById('last-updated').textContent = new Date().toLocaleString('ja-JP');
+    }
+
+    function updateNavBadges() {
+      const visible = scheduleData.matches.filter(m => m.status !== 'private').length;
+      const results = resultsData.results.filter(r => !r._example).length;
+      document.getElementById('nav-schedule-count').textContent = visible;
+      document.getElementById('nav-results-count').textContent = results;
+    }
+
+    // ===== SCHEDULE =====
+    function statusBadge(s) {
+      const map = {
+        upcoming: ['UPCOMING', 'status-upcoming'],
+        live: ['● LIVE', 'status-live'],
+        completed: ['COMPLETED', 'status-completed'],
+        private: ['PRIVATE', 'status-private'],
+      };
+      const [label, cls] = map[s] || [s, ''];
+      return `<span class="status-badge ${cls}">${label}</span>`;
+    }
+
+    function renderSchedule() {
+      const list = document.getElementById('schedule-list');
+      if (!scheduleData) return;
+
+      list.innerHTML = scheduleData.matches.map((m, idx) => {
+        const hasYt = !!m.youtube_url;
+        return `
+        <div class="match-card" id="match-card-${m.id}">
+          <div class="match-card-header" onclick="toggleCard(${m.id})">
+            <div class="match-num">#${m.id}</div>
+            <div class="match-header-info">
+              <span class="match-date-tag">${m.date} ${m.time}</span>
+              <span class="match-players-tag">
+                ${m.player1.name}<span class="vs">VS</span>${m.player2.name || '???'}
+              </span>
+              ${statusBadge(m.status)}
+              ${hasYt ? '<span class="youtube-indicator">▶ YouTube</span>' : ''}
+            </div>
+            <span class="collapse-arrow">▼</span>
+          </div>
+          <div class="match-card-body">
+            <p class="form-section-title">基本情報</p>
+            <div class="form-grid cols-3">
+              <div class="form-group">
+                <label>日付</label>
+                <input type="text" value="${m.date}" onchange="updateMatch(${m.id},'date',this.value)" placeholder="2026-??-??">
+              </div>
+              <div class="form-group">
+                <label>時刻</label>
+                <input type="text" value="${m.time}" onchange="updateMatch(${m.id},'time',this.value)" placeholder="??:??">
+              </div>
+              <div class="form-group">
+                <label>ステータス</label>
+                <select onchange="updateMatchStatus(${m.id}, this.value)">
+                  <option value="upcoming" ${m.status==='upcoming'?'selected':''}>upcoming</option>
+                  <option value="live" ${m.status==='live'?'selected':''}>live</option>
+                  <option value="completed" ${m.status==='completed'?'selected':''}>completed</option>
+                  <option value="private" ${m.status==='private'?'selected':''}>private（非表示）</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-spacer"></div>
+            <p class="form-section-title">PLAYER 1（固定）</p>
+            <div class="player-row">
+              <div class="form-group">
+                <label>名前</label>
+                <input type="text" value="${m.player1.name}" readonly>
+              </div>
+              <div class="form-group">
+                <label>X URL</label>
+                <input type="text" value="${m.player1.x}" readonly>
+              </div>
+            </div>
+
+            <div class="form-spacer"></div>
+            <p class="form-section-title">PLAYER 2</p>
+            <div class="player-row">
+              <div class="form-group">
+                <label>名前</label>
+                <input type="text" value="${m.player2.name}" onchange="updateMatchPlayer2(${m.id},'name',this.value)" placeholder="???">
+              </div>
+              <div class="form-group">
+                <label>X URL</label>
+                <input type="url" value="${m.player2.x}" onchange="updateMatchPlayer2(${m.id},'x',this.value)" placeholder="https://x.com/...">
+              </div>
+            </div>
+
+            <div class="form-spacer"></div>
+            <p class="form-section-title">メディア・メモ</p>
+            <div class="form-grid cols-1">
+              <div class="form-group">
+                <label>YouTube URL</label>
+                <input type="url" value="${m.youtube_url || ''}" onchange="updateMatch(${m.id},'youtube_url',this.value)" placeholder="https://www.youtube.com/watch?v=...">
+              </div>
+              <div class="form-group">
+                <label>ノート</label>
+                <textarea onchange="updateMatch(${m.id},'note',this.value)">${m.note || ''}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleCard(id) {
+      const card = document.getElementById('match-card-' + id);
+      card.classList.toggle('expanded');
+    }
+
+    function updateMatch(id, field, value) {
+      const m = scheduleData.matches.find(m => m.id === id);
+      if (m) { m[field] = value; markDirty(); }
+    }
+
+    function updateMatchStatus(id, value) {
+      const m = scheduleData.matches.find(m => m.id === id);
+      if (m) {
+        m.status = value;
+        markDirty();
+        renderSchedule();
+        renderDashboard();
+        updateNavBadges();
+        // re-expand
+        const card = document.getElementById('match-card-' + id);
+        if (card) card.classList.add('expanded');
+      }
+    }
+
+    function updateMatchPlayer2(id, field, value) {
+      const m = scheduleData.matches.find(m => m.id === id);
+      if (m) { m.player2[field] = value; markDirty(); }
+    }
+
+    // ===== RESULTS =====
+    function renderResults() {
+      const list = document.getElementById('results-list');
+      if (!scheduleData || !resultsData) return;
+
+      const visibleMatches = scheduleData.matches.filter(m => m.status !== 'private');
+
+      if (visibleMatches.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>表示できる試合がありません</div>';
+        return;
+      }
+
+      list.innerHTML = visibleMatches.map(m => {
+        const result = resultsData.results.find(r => r.match_id === m.id && !r._example);
+        const hasResult = !!result;
+        const p1score = result?.player1_score ?? '';
+        const p2score = result?.player2_score ?? '';
+        const winner = result?.winner ?? '';
+        const rounds = result?.total_rounds ?? '';
+        const note = result?.note ?? '';
+        const p1win = winner === 'player1';
+        const p2win = winner === 'player2';
+
+        return `
+        <div class="match-card" id="result-card-${m.id}">
+          <div class="match-card-header" onclick="toggleResultCard(${m.id})">
+            <div class="match-num">#${m.id}</div>
+            <div class="match-header-info">
+              <span class="match-date-tag">${m.date}</span>
+              <span class="match-players-tag">
+                ${m.player1.name}<span class="vs">VS</span>${m.player2.name || '???'}
+              </span>
+              ${hasResult
+                ? `<span class="status-badge status-completed">結果あり</span>`
+                : `<span class="status-badge status-private">未入力</span>`
+              }
+            </div>
+            <span class="collapse-arrow">▼</span>
+          </div>
+          <div class="match-card-body">
+            ${hasResult ? `
+            <div class="score-display">
+              <div class="score-num ${p1win?'winner-score':''}">${p1score ? Number(p1score).toLocaleString() : '——'}</div>
+              <div class="score-sep">vs</div>
+              <div class="score-num ${p2win?'winner-score':''}">${p2score ? Number(p2score).toLocaleString() : '——'}</div>
+            </div>
+            ` : ''}
+
+            <p class="form-section-title">スコア入力</p>
+            <div class="score-input-row">
+              <div class="form-group">
+                <label>${m.player1.name} スコア</label>
+                <input type="number" value="${p1score}" onchange="updateResult(${m.id},'player1_score',Number(this.value))" placeholder="0">
+              </div>
+              <div class="form-group">
+                <label>${m.player2.name || 'PLAYER 2'} スコア</label>
+                <input type="number" value="${p2score}" onchange="updateResult(${m.id},'player2_score',Number(this.value))" placeholder="0">
+              </div>
+            </div>
+
+            <div class="form-spacer"></div>
+            <p class="form-section-title">勝者</p>
+            <div class="winner-selector">
+              <div class="winner-btn ${p1win?'selected':''}" onclick="setWinner(${m.id},'player1','${m.player1.name}','${m.player2.name||'PLAYER 2'}')">
+                🏆 ${m.player1.name}
+              </div>
+              <div class="winner-btn ${p2win?'selected':''}" onclick="setWinner(${m.id},'player2','${m.player1.name}','${m.player2.name||'PLAYER 2'}')">
+                🏆 ${m.player2.name || 'PLAYER 2'}
+              </div>
+            </div>
+
+            <div class="form-spacer"></div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>総ラウンド数</label>
+                <input type="number" value="${rounds}" onchange="updateResult(${m.id},'total_rounds',Number(this.value))" placeholder="0">
+              </div>
+              <div class="form-group">
+                <label>ノート</label>
+                <input type="text" value="${note}" onchange="updateResult(${m.id},'note',this.value)" placeholder="コメント">
+              </div>
+            </div>
+
+            <div class="action-bar">
+              ${hasResult ? `<button class="btn btn-secondary btn-sm" onclick="deleteResult(${m.id})">🗑 結果を削除</button>` : ''}
+              <button class="btn btn-primary btn-sm" onclick="saveAll()">💾 保存</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleResultCard(id) {
+      const card = document.getElementById('result-card-' + id);
+      card.classList.toggle('expanded');
+    }
+
+    function updateResult(matchId, field, value) {
+      let result = resultsData.results.find(r => r.match_id === matchId && !r._example);
+      if (!result) {
+        result = { match_id: matchId, player1_score: 0, player2_score: 0, winner: '', total_rounds: 0, note: '' };
+        resultsData.results.push(result);
+      }
+      result[field] = value;
+      markDirty();
+    }
+
+    function setWinner(matchId, winner, p1name, p2name) {
+      updateResult(matchId, 'winner', winner);
+      renderResults();
+      // re-expand
+      const card = document.getElementById('result-card-' + matchId);
+      if (card) card.classList.add('expanded');
+      updateNavBadges();
+    }
+
+    function deleteResult(matchId) {
+      if (!confirm('この結果を削除しますか？')) return;
+      resultsData.results = resultsData.results.filter(r => r.match_id !== matchId || r._example);
+      markDirty();
+      renderResults();
+      updateNavBadges();
+    }
+
+    // ===== UTILITY =====
+    function markDirty() {
+      isDirty = true;
+    }
+
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + type;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Warn on unload if dirty
+    window.addEventListener('beforeunload', e => {
+      if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+    });
+
+    // Check File System Access API support
+    if (!('showDirectoryPicker' in window)) {
+      document.querySelector('.open-desc').innerHTML =
+        '⚠️ このブラウザはFile System Access APIに対応していません。<br>Chrome / Edge をお使いください。';
+      document.querySelector('.open-desc + button, #screen-open button').disabled = true;
+    }
+  </script>
+
+</body>
+</html>
