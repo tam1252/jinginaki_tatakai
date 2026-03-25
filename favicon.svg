@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="slash" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff1a3e"/>
+      <stop offset="100%" stop-color="#8b0000"/>
+    </linearGradient>
+    <linearGradient id="diamond" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0c040"/>
+      <stop offset="100%" stop-color="#c9a84c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="32" height="32" fill="#0a0505"/>
+
+  <!-- 外枠（細い金のライン） -->
+  <rect x="1" y="1" width="30" height="30" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- 斬り込み（左上→右下） -->
+  <line x1="5" y1="3" x2="27" y2="29" stroke="url(#slash)" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- 斬り込み（右上→左下、細め） -->
+  <line x1="22" y1="3" x2="8" y2="17" stroke="#c8102e" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- 中央の菱形 -->
+  <polygon points="16,10.5 20.5,16 16,21.5 11.5,16" fill="url(#diamond)"/>
+
+  <!-- 菱形の内側（くり抜き感） -->
+  <polygon points="16,13 18.5,16 16,19 13.5,16" fill="#0a0505"/>
+</svg>
