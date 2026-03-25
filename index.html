@@ -642,6 +642,83 @@
       line-height: 1.6;
     }
 
+    /* ===== FAQ SECTION ===== */
+    .section-faq {
+      position: relative;
+      padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem);
+      z-index: 10;
+    }
+
+    .faq-list {
+      max-width: 780px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .faq-item {
+      border: 1px solid rgba(200,16,46,0.15);
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+
+    .faq-item:hover { border-color: rgba(200,16,46,0.4); }
+
+    .faq-q {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      padding: clamp(1rem, 2vw, 1.4rem) clamp(1rem, 2.5vw, 1.8rem);
+      cursor: pointer;
+      user-select: none;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .faq-q-mark {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      color: var(--crimson);
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .faq-q-text {
+      font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+      color: var(--paper);
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .faq-arrow {
+      color: var(--muted);
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+    }
+
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+    .faq-a {
+      display: none;
+      padding: 0 clamp(1rem, 2.5vw, 1.8rem) clamp(1rem, 2vw, 1.4rem);
+      padding-left: calc(clamp(1rem, 2.5vw, 1.8rem) + 1rem + 1.1rem + 0.5rem);
+    }
+
+    .faq-item.open .faq-a { display: block; }
+
+    .faq-a-text {
+      font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+      color: var(--ash);
+      line-height: 1.9;
+      border-left: 2px solid rgba(200,16,46,0.3);
+      padding-left: 1rem;
+    }
+
+    .faq-a-text s {
+      color: var(--muted);
+      text-decoration-color: var(--crimson);
+    }
+
     /* ===== MANIFESTO SECTION ===== */
     .section-manifesto {
       position: relative;
@@ -1403,6 +1480,66 @@
     <p class="register-note">GOOGLE FORM — TAP TO REGISTER</p>
   </section>
 
+  <!-- ===== FAQ ===== -->
+  <section class="section-faq">
+    <div class="section-header reveal">
+      <span class="section-number">04</span>
+      <div class="section-title-wrap">
+        <h2>よくある質問</h2>
+        <p>FAQ</p>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="faq-list">
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-mark">Q.</span>
+          <span class="faq-q-text">住んでいる場所の都合で直接行けないんだけど大丈夫？</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          <p class="faq-a-text">オフライン・オンラインどちらでも対応可能です。オフラインの場合、なんとかして3時間通せる環境を用意してくださいm(__)m</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-1" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-mark">Q.</span>
+          <span class="faq-q-text">版権は選べるの？</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          <p class="faq-a-text">ひたらぎチャンネルは収益化していない<s>無敵の</s>チャンネルなので大丈夫です。普段大会で投げられない曲を共に楽しもう！</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-2" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-mark">Q.</span>
+          <span class="faq-q-text">DJ HITA*が弱すぎ / 強すぎてエントリーしずらい...</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          <p class="faq-a-text">いや、強い弱いではなく、やる気。</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-3" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-mark">Q.</span>
+          <span class="faq-q-text">FF外から失礼します。</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          <p class="faq-a-text">構いません。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- ===== MANIFESTO ===== -->
   <section class="section-manifesto">
     <div class="manifesto-bg"></div>
@@ -1693,6 +1830,11 @@
     }
 
     loadSchedule(); // loadResults() is called inside loadSchedule after data is ready
+
+    // ===== FAQ =====
+    function toggleFaq(el) {
+      el.classList.toggle('open');
+    }
 
     // ===== CURSOR SPARK =====
     document.addEventListener('mousemove', (e) => {
