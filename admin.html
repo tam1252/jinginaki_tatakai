@@ -586,6 +586,10 @@
           <span class="nav-icon">🏆</span> 結果入力
           <span class="nav-badge" id="nav-results-count">0</span>
         </div>
+        <div class="nav-item" data-page="applicants" onclick="switchPage(this)">
+          <span class="nav-icon">📋</span> 参加者
+          <span class="nav-badge" id="nav-applicants-count">0</span>
+        </div>
       </div>
       <div class="sidebar-divider"></div>
       <div class="sidebar-section">
@@ -622,6 +626,46 @@
           <div class="page-title">結果入力</div>
         </div>
         <div class="match-list" id="results-list"></div>
+      </div>
+
+      <!-- APPLICANTS PAGE -->
+      <div id="page-applicants" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">参加者一覧</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary" id="btn-reload-applicants" onclick="loadApplicants()">🔄 更新</button>
+          </div>
+        </div>
+
+        <!-- URL設定 -->
+        <div id="applicants-setup" style="margin-bottom:20px;padding:16px;background:var(--surface);border:1px solid var(--border);">
+          <p style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;color:var(--muted);margin-bottom:10px;">APPS SCRIPT URL</p>
+          <div style="display:flex;gap:8px;">
+            <input type="url" id="apps-script-url" placeholder="https://script.google.com/macros/s/.../exec"
+              style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:0.85rem;outline:none;"
+              oninput="saveScriptUrl(this.value)">
+            <button class="btn btn-primary" onclick="loadApplicants()">接続</button>
+          </div>
+          <p style="font-size:0.75rem;color:var(--muted);margin-top:8px;">
+            Apps Script をデプロイ後、発行されたURLを貼り付けてください。URLはブラウザに保存されます。
+          </p>
+        </div>
+
+        <!-- ステータス -->
+        <div id="applicants-status" style="display:none;margin-bottom:16px;font-size:0.8rem;color:var(--muted);font-family:'Share Tech Mono',monospace;"></div>
+
+        <!-- テーブル -->
+        <div id="applicants-table-wrap" style="display:none;overflow-x:auto;">
+          <table id="applicants-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;"></table>
+        </div>
+
+        <!-- エラー -->
+        <div id="applicants-error" style="display:none;padding:24px;text-align:center;color:var(--crimson);font-size:0.85rem;"></div>
+
+        <!-- ローディング -->
+        <div id="applicants-loading" style="display:none;padding:48px;text-align:center;color:var(--muted);font-size:0.85rem;">
+          読み込み中…
+        </div>
       </div>
 
     </main>
@@ -998,6 +1042,76 @@
       t.className = 'toast ' + type;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ===== APPLICANTS =====
+    (function initApplicants() {
+      const saved = localStorage.getItem('jnk_apps_script_url');
+      if (saved) document.getElementById('apps-script-url').value = saved;
+    })();
+
+    function saveScriptUrl(val) {
+      localStorage.setItem('jnk_apps_script_url', val);
+    }
+
+    async function loadApplicants() {
+      const url = document.getElementById('apps-script-url').value.trim();
+      if (!url) { showToast('⚠️ Apps Script URLを入力してください', 'error'); return; }
+
+      const loading = document.getElementById('applicants-loading');
+      const tableWrap = document.getElementById('applicants-table-wrap');
+      const errEl = document.getElementById('applicants-error');
+      const statusEl = document.getElementById('applicants-status');
+
+      loading.style.display = 'block';
+      tableWrap.style.display = 'none';
+      errEl.style.display = 'none';
+      statusEl.style.display = 'none';
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        loading.style.display = 'none';
+
+        if (!Array.isArray(data) || data.length === 0) {
+          errEl.textContent = '回答がまだありません。';
+          errEl.style.display = 'block';
+          document.getElementById('nav-applicants-count').textContent = 0;
+          return;
+        }
+
+        document.getElementById('nav-applicants-count').textContent = data.length;
+        statusEl.textContent = `${data.length} 件の回答 — 最終更新: ${new Date().toLocaleString('ja-JP')}`;
+        statusEl.style.display = 'block';
+
+        const headers = Object.keys(data[0]);
+        const table = document.getElementById('applicants-table');
+        table.innerHTML = `
+          <thead>
+            <tr>${headers.map(h => `<th style="padding:8px 12px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;">${h}</th>`).join('')}</tr>
+          </thead>
+          <tbody>
+            ${data.map((row, i) => `
+              <tr style="background:${i%2===0?'var(--surface)':'var(--surface2)'};">
+                ${headers.map(h => {
+                  const val = row[h] ?? '';
+                  const isUrl = String(val).startsWith('http');
+                  const cell = isUrl
+                    ? `<a href="${val}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">${val}</a>`
+                    : String(val);
+                  return `<td style="padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;">${cell}</td>`;
+                }).join('')}
+              </tr>`).join('')}
+          </tbody>`;
+        tableWrap.style.display = 'block';
+      } catch (e) {
+        loading.style.display = 'none';
+        errEl.textContent = `接続エラー: ${e.message}。URLを確認するか、Apps Scriptの公開設定を「全員」にしてください。`;
+        errEl.style.display = 'block';
+        showToast('❌ 参加者データの取得に失敗しました', 'error');
+      }
     }
 
     // Warn on unload if dirty
