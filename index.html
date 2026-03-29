@@ -1673,6 +1673,7 @@
 
     // All matches (including private) stored for results lookup
     let allMatchesById = {};
+    let allResults = [];
 
     function formatDate(dateStr) {
       if (!dateStr || dateStr.includes('?')) return dateStr || '——';
@@ -1723,18 +1724,7 @@
           return;
         }
 
-        // Populate VS section with the first non-completed match
-        const next = matches.find(m => m.status !== 'completed');
-        if (next) {
-          document.getElementById('next-p1-name').innerHTML = nameLink(next.player1.name, next.player1.x);
-          document.getElementById('next-p1-team').textContent = '';
-          document.getElementById('next-p2-name').innerHTML = nameLink(next.player2.name, next.player2.x);
-          document.getElementById('next-p2-team').textContent = '';
-          document.getElementById('next-match-meta').innerHTML = `
-            <div class="timer-display">${next.date ? formatDate(next.date) : '——'}</div>
-            <div style="margin-top:0.3rem;">${next.time || ''}</div>
-          `;
-        }
+        // VS card は results 読み込み後に更新（updateVsCard参照）
 
         // Render schedule list
         listEl.innerHTML = matches.map(m => `
@@ -1759,12 +1749,32 @@
         listEl.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
         // Results need schedule data, so load after schedule is ready
-        loadResults();
+        await loadResults();
+        updateVsCard(matches);
 
       } catch (e) {
         listEl.innerHTML = '<div class="schedule-empty">データを読み込めませんでした</div>';
-        loadResults();
+        await loadResults();
+        updateVsCard([]);
       }
+    }
+
+    function updateVsCard(matches) {
+      // 結果が入っていない最初のupcoming/liveを次戦とみなす
+      const resultedIds = new Set(allResults.map(r => r.match_id));
+      const next = matches.find(m =>
+        (m.status === 'upcoming' || m.status === 'live') && !resultedIds.has(m.id)
+      ) || matches.find(m => m.status === 'upcoming' || m.status === 'live');
+
+      if (!next) return;
+      document.getElementById('next-p1-name').innerHTML = nameLink(next.player1.name, next.player1.x);
+      document.getElementById('next-p1-team').textContent = '';
+      document.getElementById('next-p2-name').innerHTML = nameLink(next.player2.name, next.player2.x);
+      document.getElementById('next-p2-team').textContent = '';
+      document.getElementById('next-match-meta').innerHTML = `
+        <div class="timer-display">${next.date ? formatDate(next.date) : '——'}</div>
+        <div style="margin-top:0.3rem;">${next.time || ''}</div>
+      `;
     }
 
     async function loadResults() {
@@ -1774,41 +1784,42 @@
         const data = await res.json();
         // Filter out example/placeholder entries
         const results = (data.results || []).filter(r => !r._example);
+        allResults = results; // VS card更新に使う
 
         if (results.length === 0) {
           listEl.innerHTML = '<div class="results-empty">まだ結果はありません / NO RESULTS YET</div>';
-          listEl.style.display = 'block';
           return;
         }
 
         listEl.innerHTML = results.map(r => {
-          // Look up match info from schedule by match_id
           const match = allMatchesById[r.match_id] || {};
           const p1 = match.player1 || {};
           const p2 = match.player2 || {};
+          const isDraw = !r.winner || (r.player1_score === r.player2_score);
           const p1win = r.winner === 'player1';
+          const p2win = r.winner === 'player2';
           const p1score = r.player1_score || 0;
           const p2score = r.player2_score || 0;
           const diff = Math.abs(p1score - p2score);
           const vid = getYouTubeId(match.youtube_url);
+          const winnerName = p1win ? (p1.name || '——') : p2win ? (p2.name || '——') : 'DRAW';
 
           return `
           <div class="result-card reveal">
             <div class="result-date">${match.date ? formatDate(match.date) : '——'}</div>
             <div class="result-matchup">
-              <div class="result-player result-player-left ${p1win ? 'winner' : 'loser'}">
+              <div class="result-player result-player-left ${isDraw ? '' : p1win ? 'winner' : 'loser'}">
                 <div class="result-player-name">${nameLink(p1.name, p1.x)}</div>
                 <div class="result-score">${p1score.toLocaleString()}</div>
               </div>
               <div class="result-sep">—</div>
-              <div class="result-player result-player-right ${!p1win ? 'winner' : 'loser'}">
+              <div class="result-player result-player-right ${isDraw ? '' : p2win ? 'winner' : 'loser'}">
                 <div class="result-player-name">${nameLink(p2.name, p2.x)}</div>
                 <div class="result-score">${p2score.toLocaleString()}</div>
               </div>
             </div>
             <div class="result-meta">
-              <div class="result-meta-item">WINNER<span>${p1win ? (p1.name || '——') : (p2.name || '——')}</span></div>
-              ${diff ? `<div class="result-meta-item">SCORE DIFF<span>${diff.toLocaleString()}</span></div>` : ''}
+              <div class="result-meta-item">RESULT<span>${winnerName}</span></div>
               ${r.total_rounds ? `<div class="result-meta-item">ROUNDS<span>${r.total_rounds}</span></div>` : ''}
             </div>
             ${r.note ? `<div class="result-note">${r.note}</div>` : ''}
