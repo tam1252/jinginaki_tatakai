@@ -9,6 +9,14 @@
       "winner": "player1",
       "total_rounds": 14,
       "note": "接戦の末逆転勝利"
+    },
+    {
+      "match_id": 1,
+      "player1_score": 24,
+      "player2_score": 24,
+      "winner": "",
+      "total_rounds": 48,
+      "note": "かなりの名勝負が生まれた良いバトルだった。終わった後はノーサイド。"
     }
   ]
 }
