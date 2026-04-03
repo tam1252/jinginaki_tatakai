@@ -17,6 +17,14 @@
       "winner": "",
       "total_rounds": 48,
       "note": "かなりの名勝負が生まれた良いバトルだった。終わった後はノーサイド。"
+    },
+    {
+      "match_id": 2,
+      "player1_score": 23,
+      "player2_score": 29,
+      "winner": "player2",
+      "total_rounds": 52,
+      "note": "前半戦、流石の精度力を見せた87DD選手の勝利...！"
     }
   ]
 }
