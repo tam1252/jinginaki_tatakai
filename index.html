@@ -1037,6 +1037,17 @@
     .status-upcoming .match-status-badge { color: var(--gold); border-color: var(--gold); }
     .status-live .match-status-badge { color: var(--neon-red); border-color: var(--neon-red); }
     .status-completed .match-status-badge { color: var(--ash); border-color: var(--ash); }
+    .status-private .match-status-badge { color: var(--muted,#6a5a5a); border-color: rgba(255,255,255,0.1); }
+    .match-row.status-private {
+      opacity: 0.45;
+      border-left-color: rgba(255,255,255,0.08);
+      pointer-events: none;
+    }
+    .match-row.status-private .match-player {
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 0.2em;
+      color: var(--ash);
+    }
 
     .match-note-row {
       grid-column: 1 / -1;
@@ -1717,17 +1728,32 @@
         // Store all matches by id for results lookup
         allMatches.forEach(m => { allMatchesById[m.id] = m; });
 
+        // privateも含めてすべて表示（privateは枠のみ）
         const matches = allMatches.filter(m => m.status !== 'private');
 
-        if (matches.length === 0) {
+        if (allMatches.filter(m => m.status !== 'private').length === 0 && allMatches.length === 0) {
           listEl.innerHTML = '<div class="schedule-empty">スケジュールは準備中です / TBD</div>';
           return;
         }
 
         // VS card は results 読み込み後に更新（updateVsCard参照）
 
-        // Render schedule list
-        listEl.innerHTML = matches.map(m => `
+        // Render schedule list（privateは伏せ字枠として表示）
+        listEl.innerHTML = allMatches.map((m, idx) => {
+          if (m.status === 'private') {
+            return `
+            <div class="match-row status-private reveal">
+              <div class="match-date">
+                <span class="date-main">——</span>
+                <span class="time-sub">——</span>
+              </div>
+              <div class="match-player match-player-left">? ? ?</div>
+              <div class="match-vs">VS</div>
+              <div class="match-player match-player-right">? ? ?</div>
+              <div class="match-status-badge">COMING SOON</div>
+            </div>`;
+          }
+          return `
           <div class="match-row status-${m.status} reveal">
             <div class="match-date">
               <span class="date-main">${formatDate(m.date)}</span>
@@ -1743,8 +1769,8 @@
             <div class="match-status-badge">${STATUS_LABEL[m.status] || m.status}</div>
             ${m.note ? `<div class="match-note-row">${m.note}</div>` : ''}
             ${renderThumbnail(m)}
-          </div>
-        `).join('');
+          </div>`;
+        }).join('');
 
         listEl.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
